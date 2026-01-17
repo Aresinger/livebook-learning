@@ -1,17 +1,13 @@
 import { useState } from "react";
-import {
-  signUp,
-  signIn,
-  signOut,
-  getSession,
-  resetPassword,
-  updatePassword,
-} from "./../services/authService";
-import { createProfile, readProfile } from "./../services/profileService";
+import { signUp } from "./../services/authService";
+import { useDispatch, useSelector } from "react-redux";
+import { logout, loginThunk } from "../store/auth/authSlice";
 
 export default function AuthPage() {
   const [view, setView] = useState("login");
+  const { status, error } = useSelector((state) => state.auth);
   const [avatarFile, setAvatarFile] = useState(null);
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -31,51 +27,11 @@ export default function AuthPage() {
     }));
   }
 
-  async function Login(e) {
+  async function handleLogin(e) {
     e.preventDefault();
-
-    const { data, error } = await signIn(formData.email, formData.password);
-    console.log("LOGIN", { data, error });
-    if (error) return;
-    const user = data.session.user;
-    const res = await afterLogin(user);
-    if (!res.ok) return;
-
-    // 3) routing UI
-    if (res.role === "artista") {
-      console.log("<DashboardArtist/>");
-    } else {
-      console.log("<DashboardVenue/>");
-    }
-  }
-
-  async function afterLogin(user) {
-    const role = user.user_metadata?.role;
-
-    if (!role) {
-      return { ok: false, error: "ROLE_MISSING" };
-    }
-
-    const { data: profile, error: readErr } = await readProfile(user.id);
-    console.log("READ PROFILE", { profile, readErr });
-
-    // Se non esiste profilo, single() di readProfile dà PGRST116 → lo trattiamo come "ok, manca"
-    if (readErr && readErr.code !== "PGRST116") {
-      return { ok: false, error: readErr };
-    }
-
-    if (!profile) {
-      const { data: created, error: createErr } = await createProfile(
-        user.id,
-        role
-      );
-      console.log("CREATE PROFILE", { created, createErr });
-      if (createErr) return { ok: false, error: createErr };
-
-      return { ok: true, role, profile: created };
-    }
-
-    return { ok: true, role, profile };
+    dispatch(
+      loginThunk({ email: formData.email, password: formData.password })
+    );
   }
 
   async function handleArtistSignUp(e) {
@@ -86,7 +42,10 @@ export default function AuthPage() {
       "artista"
     );
     console.log("SIGNUP ARTIST", { data, error });
-    if (error) return;
+    if (error) {
+      alert(error.message);
+      return;
+    }
 
     alert(
       "Account creato! Controlla la mail e conferma. Poi torna qui e fai login."
@@ -94,10 +53,10 @@ export default function AuthPage() {
     setView("login");
   }
 
-  async function handleLogout() {
-    const { error } = await signOut();
-    console.log("logout", { error });
-  }
+  //   async function handleLogout() {
+  //     const { error } = await signOut();
+  //     console.log("logout", { error });
+  //   }
 
   function signup_artist() {
     setView("artista");
@@ -121,8 +80,8 @@ export default function AuthPage() {
         <div className="page-bg">
           <div className="w-full max-w-md">
             {/* Header */}
-            <div className="mb-6 text-center">
-              <h1 className="text-3xl font-extrabold tracking-tight">
+            <div className="mb-6 text-center ">
+              <h1 className="text-7xl font-extrabold tracking-tight">
                 Livebook
               </h1>
               <p className="help-text mt-1">
@@ -132,7 +91,7 @@ export default function AuthPage() {
 
             {/* Card */}
             <div className="glass-card">
-              <form className="card-inner space-y-5" onSubmit={Login}>
+              <form className="card-inner space-y-5" onSubmit={handleLogin}>
                 {/* Email */}
                 <div>
                   <label className="label" htmlFor="email">
@@ -195,6 +154,9 @@ export default function AuthPage() {
                     Locale
                   </button>
                 </div>
+                {status === "failed" && (
+                  <p className="text-red-300 text-sm">{error?.message}</p>
+                )}
                 {/* Main CTA */}
                 <button
                   type="submit"
@@ -205,7 +167,7 @@ export default function AuthPage() {
                 <button
                   className="btn-primary w-full py-3 rounded-xl font-semibold"
                   type="button"
-                  onClick={handleLogout}
+                  onClick={() => dispatch(logout())}
                 >
                   Logout
                 </button>
@@ -228,7 +190,7 @@ export default function AuthPage() {
               Indietro{" "}
             </button>
             <div className="mb-6 text-center">
-              <h1 className="text-3xl font-extrabold tracking-tight">
+              <h1 className="text-7xl font-extrabold tracking-tight">
                 Livebook
               </h1>
               <p className="help-text mt-1">
@@ -372,7 +334,7 @@ export default function AuthPage() {
               Indietro{" "}
             </button>
             <div className="mb-6 text-center">
-              <h1 className="text-3xl font-extrabold tracking-tight">
+              <h1 className="text-7xl font-extrabold tracking-tight">
                 Livebook
               </h1>
               <p className="help-text mt-1">

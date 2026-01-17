@@ -109,22 +109,47 @@
 //   );
 // }
 
-import React from 'react'
-import { BrowserRouter,Route,Routes } from 'react-router-dom'
-import { Provider } from 'react-redux'
-import AuthPage from './auth/AuthPage'
+
+
+
+
+
+
+// import React from 'react'
+// import { BrowserRouter,Route,Routes } from 'react-router-dom'
+// import { Provider } from 'react-redux'
+// import AuthPage from './auth/AuthPage'
+
+
+// export default function App() {
+//   return (
+//     <BrowserRouter>
+//       <Routes>
+//         <Route path='/auth' element={<AuthPage/>}/>
+//         <Route/>
+//         <Route/>
+//         <Route/>
+//         <Route/>
+//       </Routes>
+//     </BrowserRouter>
+//   )
+// }
+
+
+
+import { useSelector } from "react-redux";
+import AuthPage from "./auth/AuthPage";
+import ArtistDashboard from "./components/dashboard/ArtistDashboard";
+import VenueDashboard from "./components/dashboard/VenueDashboard";
 
 
 export default function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path='/auth' element={<AuthPage/>}/>
-        <Route/>
-        <Route/>
-        <Route/>
-        <Route/>
-      </Routes>
-    </BrowserRouter>
-  )
+  const { user, role } = useSelector((state) => state.auth);
+
+  if (!user) return <AuthPage />;
+
+  if (role === "artista") return <ArtistDashboard />;
+  if (role === "locale") return <VenueDashboard />;
+
+  return <div>Ruolo non riconosciuto</div>;
 }
