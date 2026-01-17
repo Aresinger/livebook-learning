@@ -1,6 +1,11 @@
 import React from "react";
+import { logout } from "../../features/auth/authSlice";
+import { useDispatch } from "react-redux";
 
-export default function VenueDashboard({logout}) {
+export default function VenueDashboard() {
+
+  const dispatch= useDispatch();
+
   return (
     <>
       <div>Sei in VenueDashboard</div>

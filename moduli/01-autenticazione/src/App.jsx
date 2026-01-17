@@ -67,7 +67,6 @@
 //     print("updatePassword", { data, error });
 //   }
 
-
 //   return (
 //     <div style={{ padding: 20, maxWidth: 620 }}>
 //       <h2>Mini-Progetto 01 — Auth + Profiles (pulito)</h2>
@@ -100,26 +99,15 @@
 //       </pre>
 //       <RequestsList/>
 
-
-
 //     </div>
-    
 
-   
 //   );
 // }
-
-
-
-
-
-
 
 // import React from 'react'
 // import { BrowserRouter,Route,Routes } from 'react-router-dom'
 // import { Provider } from 'react-redux'
 // import AuthPage from './auth/AuthPage'
-
 
 // export default function App() {
 //   return (
@@ -134,22 +122,41 @@
 //     </BrowserRouter>
 //   )
 // }
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { getSession } from "./services/authService";
+import { refresh } from "./features/auth/authSlice";
 
-
-
-import { useSelector } from "react-redux";
 import AuthPage from "./auth/AuthPage";
 import ArtistDashboard from "./components/dashboard/ArtistDashboard";
 import VenueDashboard from "./components/dashboard/VenueDashboard";
 
-
 export default function App() {
+  const dispatch = useDispatch();
   const { user, role } = useSelector((state) => state.auth);
 
-  if (!user) return <AuthPage />;
+  useEffect(() => {
+    async function boot() {
+      const { data, error } = await getSession();
+      if (error) return;
 
+      const session = data?.session;
+      if (!session) return;
+
+      const user = session.user;
+      const role = user.user_metadata?.role ?? null;
+
+      // Profilo provvisorio SOLO per UI (poi lo leggeremo da DB)
+      const profile = { id: user.id, role, created_at: user.created_at };
+
+      dispatch(refresh({ user, role, profile }));
+    }
+
+    boot();
+  }, [dispatch]);
+
+  if (!user) return <AuthPage />;
   if (role === "artista") return <ArtistDashboard />;
   if (role === "locale") return <VenueDashboard />;
-
   return <div>Ruolo non riconosciuto</div>;
 }

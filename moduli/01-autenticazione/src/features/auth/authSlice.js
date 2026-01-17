@@ -6,33 +6,32 @@ export const loginThunk = createAsyncThunk(
   "auth/login",
   async ({ email, password }, { rejectWithValue }) => {
     const { data, error } = await signIn(email, password);
-    if (error) return rejectWithValue({
-  message: error.message,
-  code: error.code,
-  status: error.status,
-});
-
+    if (error)
+      return rejectWithValue({
+        message: error.message,
+        code: error.code,
+        status: error.status,
+      });
 
     const user = data.session.user;
     const role = user.user_metadata?.role;
 
-    if (!role) return rejectWithValue({
-   message: "ROLE_MISSING",
-    code: "ROLE_MISSING",
-    status: 400,
-});
-
+    if (!role)
+      return rejectWithValue({
+        message: "ROLE_MISSING",
+        code: "ROLE_MISSING",
+        status: 400,
+      });
 
     // read profile (gestione PGRST116)
     const { data: profile, error: readErr } = await readProfile(user.id);
 
     if (readErr && readErr.code !== "PGRST116") {
       return rejectWithValue({
-  message: readErr.message,
-  code: readErr.code,
-  status: readErr.status,
-});
-
+        message: readErr.message,
+        code: readErr.code,
+        status: readErr.status,
+      });
     }
 
     if (!profile) {
@@ -40,17 +39,17 @@ export const loginThunk = createAsyncThunk(
         user.id,
         role
       );
-      if (createErr) return rejectWithValue({
-  message: createErr.message,
-  code: createErr.code,
-  status: createErr.status,
-});
+      if (createErr)
+        return rejectWithValue({
+          message: createErr.message,
+          code: createErr.code,
+          status: createErr.status,
+        });
 
       return { user, role, profile: created };
     }
-    console.log({user, role, profile})
+    console.log({ user, role, profile });
     return { user, role, profile };
-    
   }
 );
 
@@ -73,6 +72,13 @@ const authSlice = createSlice({
       state.status = "idle";
       state.error = null;
     },
+    refresh(state, action) {
+      state.user = action.payload.user ?? null;
+      state.role = action.payload.role ?? null;
+      state.profile = action.payload.profile ?? null;
+      state.status = "succeeded";
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -89,10 +95,9 @@ const authSlice = createSlice({
       .addCase(loginThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload ?? { message: action.error.message };
-
       });
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, refresh } = authSlice.actions;
 export default authSlice.reducer;

@@ -1,6 +1,9 @@
 import React from "react";
+import { logout } from "../../features/auth/authSlice";
+import { useDispatch } from "react-redux";
 
-export default function ArtistDashboard({logout}) {
+export default function ArtistDashboard() {
+  const dispatch= useDispatch()
   return (
     <>
       <div>Sei in ArtistDashboard</div>
