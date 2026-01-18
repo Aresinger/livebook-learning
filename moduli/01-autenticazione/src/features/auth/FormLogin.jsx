@@ -108,9 +108,9 @@ function handleChange(e) {
                 <button
                   type="submit"
                   className="btn-primary w-full py-3 rounded-xl font-semibold"
-                  disabled={status === 'loading'}
+                  disabled={status === 'loggingIn'}
                 >
-                    {status === 'loading' ? 'Accesso in corso..' : 'Accedi'}
+                    {status === 'loggingIn' ? 'Accesso in corso..' : 'Accedi'}
                   
                 </button>
                

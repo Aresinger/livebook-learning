@@ -1,6 +1,21 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { signIn } from "../../services/authService";
+import {
+  signIn,
+  signOut,
+  getSession,
+  signUp,
+} from "../../services/authService";
 import { readProfile, createProfile } from "../../services/profileService";
+import { readArtist, createArtist } from "../../services/artistService";
+import { readVenue, createVenue } from "../../services/venueService";
+
+const initialState = {
+  user: null,
+  role: null,
+  profile: null,
+  status: "idle",
+  error: null,
+};
 
 export const loginThunk = createAsyncThunk(
   "auth/login",
@@ -13,6 +28,38 @@ export const loginThunk = createAsyncThunk(
         status: error.status,
       });
 
+    return true;
+  }
+);
+export const signUpThunk = createAsyncThunk(
+  "auth/Registrazione",
+  async ({ email, password, meta }, { rejectWithValue }) => {
+    const { data, error } = await signUp(email, password, meta);
+    if (error)
+      return rejectWithValue({
+        message: error.message,
+        code: error.code,
+        status: error.status,
+      });
+      return true
+  }
+);
+
+export const bootstrapAuth = createAsyncThunk(
+  "auth/bootstrap",
+  async (__, { rejectWithValue }) => {
+    const { data, error } = await getSession();
+    if (error) {
+      return rejectWithValue({
+        message: error.message,
+        cose: error.code,
+        status: error.status,
+      });
+    }
+    const session = data?.session;
+    if (!session) {
+      return { user: null, role: null, profile: null };
+    }
     const user = data.session.user;
     const role = user.user_metadata?.role;
 
@@ -33,33 +80,95 @@ export const loginThunk = createAsyncThunk(
         status: readErr.status,
       });
     }
-
-    if (!profile) {
-      const { data: created, error: createErr } = await createProfile(
+    let ensuredProfile = profile;
+    if (!ensuredProfile) {
+      const { data: newProfile, error: createErr } = await createProfile(
         user.id,
         role
       );
-      if (createErr)
+      if (createErr) {
         return rejectWithValue({
           message: createErr.message,
           code: createErr.code,
           status: createErr.status,
         });
+      }
 
-      return { user, role, profile: created };
+      ensuredProfile = newProfile;
     }
-    console.log({ user, role, profile });
-    return { user, role, profile };
+
+    const meta = user.user_metadata || {};
+    if (role === "artista") {
+      const { data: artist, error: errReadArtist } = await readArtist(user.id);
+      if (errReadArtist && errReadArtist.code !== "PGRST116") {
+        return rejectWithValue({
+          message: errReadArtist.message,
+          code: errReadArtist.code,
+          status: errReadArtist.status,
+        });
+      }
+      if (!artist) {
+        const payload = {
+          stage_name: meta.stage_name ?? "",
+          id: user.id,
+          city: meta.city ?? "",
+          duties: meta.duty ? [meta.duty] : ["artista generico"],
+        };
+        const { data: artist, error: errCreateArtist } = await createArtist(
+          payload
+        );
+        if (errCreateArtist) {
+          return rejectWithValue({
+            message: errCreateArtist.message,
+            code: errCreateArtist.code,
+            status: errCreateArtist.status,
+          });
+        }
+      }
+    }
+    if (role === "locale") {
+      const { data: locale, error: errReadVenue } = await readVenue(user.id);
+      if (errReadVenue && errReadVenue.code !== "PGRST116") {
+        return rejectWithValue({
+          message: errReadVenue.message,
+          code: errReadVenue.code,
+          status: errReadVenue.status,
+        });
+      }
+      if (!locale) {
+        const payload = {
+          id: user.id,
+          name: meta.venue_name ?? "",
+          city: meta.city ?? "",
+        };
+        const { data: newVenue, error: errCreateVenue } = await createVenue(
+          payload
+        );
+        if (errCreateVenue) {
+          return rejectWithValue({
+            message: errCreateVenue.message,
+            code: errCreateVenue.code,
+            status: errCreateVenue.status,
+          });
+        }
+      }
+    }
+    return { user, role, profile: ensuredProfile };
   }
 );
-
-const initialState = {
-  user: null,
-  role: null,
-  profile: null,
-  status: "idle",
-  error: null,
-};
+export const thunkLogout = createAsyncThunk(
+  "auth/logout",
+  async (_, { rejectWithValue }) => {
+    const { error } = await signOut();
+    if (error)
+      return rejectWithValue({
+        message: error.message,
+        code: error.code,
+        status: error.status,
+      });
+    return true;
+  }
+);
 
 const authSlice = createSlice({
   name: "auth",
@@ -82,20 +191,68 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // LOGIN (solo auth)
       .addCase(loginThunk.pending, (state) => {
-        state.status = "loading";
+        state.status = "loggingIn";
         state.error = null;
       })
-      .addCase(loginThunk.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.user = action.payload.user;
-        state.role = action.payload.role;
-        state.profile = action.payload.profile;
+      .addCase(loginThunk.fulfilled, (state) => {
+        // Non impostare user/role/profile qui!
+        // La UI viene aggiornata dal bootstrapAuth
+        state.status = "booting";
+        state.error = null;
       })
       .addCase(loginThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload ?? { message: action.error.message };
-      });
+      })
+
+      // BOOTSTRAP (sincronizza store + DB)
+      .addCase(bootstrapAuth.pending, (state) => {
+        state.status = "booting";
+        state.error = null;
+      })
+      .addCase(bootstrapAuth.fulfilled, (state, action) => {
+        state.status = "ready";
+        state.user = action.payload.user;
+        state.role = action.payload.role;
+        state.profile = action.payload.profile;
+        state.error = null;
+      })
+      .addCase(bootstrapAuth.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload ?? { message: action.error.message };
+      })
+
+      // LOGOUT
+      .addCase(thunkLogout.fulfilled, (state) => {
+        state.user = null;
+        state.role = null;
+        state.profile = null;
+        state.status = "idle";
+        state.error = null;
+      })
+      .addCase(thunkLogout.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload ?? { message: action.error.message };
+      })
+      // SIGNUP
+
+      .addCase(signUpThunk.fulfilled, (state, action) => {
+        state.status = "ok";
+        state.user = action.payload.user;
+        state.role = action.payload.role;
+        state.profile = action.payload.profile;
+        state.error = null;
+      })
+      .addCase(signUpThunk.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload ?? { message: action.error.message };
+      })
+      .addCase(signUpThunk.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
   },
 });
 

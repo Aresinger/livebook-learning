@@ -1,11 +1,17 @@
 import React from "react";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 
-export default function FormRegistazioneLocale({comeBack,handleVenueSignUp}) {
+export default function FormRegistazioneLocale({comeBack,handleVenueSignUp,duty}) {
+
+  const { status, error }= useSelector((state) => state.auth)
 const [formVenue, setFormVenue] = useState({
-   name:'',
+   venue_name:'',
    emailVenue:'',
    passwordVenue:'',
+   avatarVenue: null,
+   dutySelect: '',
+   cityVenue:''
 
 })
 function handleChange(e) {
@@ -44,12 +50,12 @@ function handleChange(e) {
             <form className="card-inner space-y-5" onSubmit={handleSubmit}>
                 {/* Nome */}
                  <div>
-                  <label className="label" htmlFor="name">
+                  <label className="label" htmlFor="venue_name">
                     Nome Locale
                   </label>
                   <input
-                    id="name"
-                    name="name"
+                    id="venue_name"
+                    name="venue_name"
                     type="text"
                     className="input-glass"
                     placeholder="Ristorante dai Massoni"
@@ -90,11 +96,72 @@ function handleChange(e) {
                   name="passwordVenue"
                 />
               </div>
+                {/* città */}
+              <div>
+                <label className="label" htmlFor="cityVenue">
+                  Città
+                </label>
+                <input
+                  type="text"
+                  id="cityVenue"
+                  name="cityVenue"
+                  className="input-glass"
+                  value={formVenue.cityVenue}
+                  onChange={(e) => handleChange(e)}
+                  placeholder="Roma"
+                />
+              </div>
+               {/* tipo di artista ricercato*/}
+              <div>
+                <label className="label" htmlFor="dutiesArtist">
+                  Che tipo di Artista cerchi?
+                </label>
+                <select
+                  id="dutiesArtist"
+                  className="input-glass"
+                  value={formVenue.dutySelect}
+                  onChange={(e) => handleChange(e)}
+                  name="dutySelect"
+                >
+                  <option disabled value="">
+                    Seleziona un opzione
+                  </option>
+
+                  {duty.map((duty) => {
+                    // console.log(duty.toUpperCase())
+                    return (
+                      <option value={duty} key={duty}>
+                        {duty.toUpperCase()}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+                {/* Immagine profilo */}
+              <div>
+                <label htmlFor="avatarLocale" className="label">
+                  Immagine Profilo
+                </label>
+                <input
+                  id="avatarLocale"
+                  name="avatarLocale"
+                  type="file"
+                  accept="image/*"
+                  className="input-glass"
+                  onChange={(e) =>
+                    setFormVenue((prev) => ({
+                      ...prev,
+                      avatarVenue: e.target.files?.[0] ?? null,
+                    }))
+                  }
+                />
+              </div>
 
               {/* Main CTA */}
               <button
                 type="submit"
                 className="btn-primary w-full py-3 rounded-xl font-semibold"
+                disabled={status === 'loggingIn'}
               >
                 Registrati
               </button>

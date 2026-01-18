@@ -1,16 +1,17 @@
-import React from "react";
-import { logout } from "../../features/auth/authSlice";
+
 import { useDispatch } from "react-redux";
+import { thunkLogout } from "../../features/auth/authSlice";
 
 export default function ArtistDashboard() {
   const dispatch= useDispatch()
+  
   return (
     <>
       <div>Sei in ArtistDashboard</div>
       <button
         className="btn-primary w-full py-3 rounded-xl font-semibold"
         type="button"
-        onClick={() => dispatch(logout())}
+        onClick={() => dispatch(thunkLogout())}
       >
         Logout
       </button>

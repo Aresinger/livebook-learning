@@ -1,32 +1,55 @@
 import { useState } from "react";
 import { signUp } from "./../services/authService";
 import { useDispatch } from "react-redux";
-import { loginThunk } from "../features/auth/authSlice";
+import {
+  bootstrapAuth,
+  loginThunk,
+  signUpThunk,
+} from "../features/auth/authSlice";
 import FormLogin from "../features/auth/FormLogin";
 import FormRegistazioneArtista from "../features/auth/FormRegistazioneArtista";
 import FormRegistazioneLocale from "../features/auth/FormRegistazioneLocale";
 
 export default function AuthPage() {
   const [view, setView] = useState("login");
-  
+
   const dispatch = useDispatch();
 
-
- function handleLogin(formLogin) {
-    
-    dispatch(
+  async function handleLogin(formLogin) {
+    const res = await dispatch(
       loginThunk({ email: formLogin.email, password: formLogin.password })
     );
+    if (loginThunk.fulfilled.match(res)) {
+      await dispatch(bootstrapAuth());
+    }
   }
 
   async function handleArtistSignUp(formArtist) {
+    // const { data, error } = await signUp(
+    //   formArtist.emailArtist,
+    //   formArtist.passwordArtist,
+    //   {
+    //     role: "artista",
+    //     stage_name: formArtist.stage_name,
+    //     city: formArtist.cityArtist,
+    //     duty: formArtist.dutySelect,
+    //   }
+    // );
 
-    const { data, error } = await signUp(
-      formArtist.emailArtist,
-      formArtist.passwordArtist,
-      "artista"
+    /// Con questa funzione posso gestire gli stati ; modifica al bottone status === 'loading'
+   const { data, error } = await dispatch(
+      signUpThunk({
+        email: formArtist.emailArtist,
+        password: formArtist.passwordArtist,
+        meta: {
+          role: "artista",
+          stage_name: formArtist.stage_name,
+          city: formArtist.cityArtist,
+          duty: formArtist.dutySelect,
+        },
+      })
     );
-   
+
     if (error) {
       alert(error.message);
       return;
@@ -38,15 +61,18 @@ export default function AuthPage() {
     setView("login");
   }
 
-
   async function handleVenueSignUp(formVenue) {
-    
     const { data, error } = await signUp(
       formVenue.emailVenue,
       formVenue.passwordVenue,
-      "locale"
+      {
+        role: "locale",
+        venue_name: formVenue.venue_name,
+        city: formVenue.cityVenue,
+        duty: formVenue.dutySelect,
+      }
     );
-    
+
     if (error) {
       alert(error.message);
       return;
@@ -81,8 +107,6 @@ export default function AuthPage() {
           signup_artist={signup_artist}
           signup_venue={signup_venue}
           handleLogin={handleLogin}
-         
-          
         />
       )}
       {view === "artista" && (
@@ -93,7 +117,11 @@ export default function AuthPage() {
         />
       )}
       {view === "locale" && (
-        <FormRegistazioneLocale handleVenueSignUp={handleVenueSignUp} comeBack={comeBack} />
+        <FormRegistazioneLocale
+          handleVenueSignUp={handleVenueSignUp}
+          comeBack={comeBack}
+          duty={duty}
+        />
       )}
     </>
   );

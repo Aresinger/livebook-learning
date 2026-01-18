@@ -1,11 +1,11 @@
 import { supabase } from "../config/supabase";
 
-export async function signUp(email, password,role) {
+export async function signUp(email, password,meta = {}) {
   return supabase.auth.signUp({
     email,
     password,
     options: {
-      data: { role }, // <-- salva role in user_metadata
+      data: meta, // <-- salva role in user_metadata
     },
   });
 }

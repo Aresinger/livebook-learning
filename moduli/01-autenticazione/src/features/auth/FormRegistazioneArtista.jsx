@@ -1,12 +1,14 @@
 import React from "react";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 
 export default function FormRegistazioneArtista({
   duty,
   comeBack,
   handleArtistSignUp,
 }) {
-
+  const  { status , error }= useSelector((state) => state.auth);
+console.log(status)
   const [formArtist, setFormArtist] = useState({
     emailArtist: "",
     passwordArtist: "",
@@ -105,7 +107,7 @@ export default function FormRegistazioneArtista({
                   id="dutiesArtist"
                   className="input-glass"
                   value={formArtist.dutySelect}
-                  onChange={handleChange}
+                  onChange={(e)=>handleChange(e)}
                   name="dutySelect"
                 >
                   <option disabled value="">
@@ -137,6 +139,7 @@ export default function FormRegistazioneArtista({
                   placeholder="Roma"
                 />
               </div>
+              {/* Immagine profilo */}
               <div>
                 <label htmlFor="avatarArtist" className="label">
                   Immagine Profilo
@@ -155,13 +158,17 @@ export default function FormRegistazioneArtista({
                   }
                 />
               </div>
+               {status === "failed" && (
+                  <p className="text-red-300 text-sm">{error?.message}</p>
+                )}
 
               {/* Main CTA */}
               <button
                 type="submit"
                 className="btn-primary w-full py-3 rounded-xl font-semibold"
+                disabled={status === 'loading'}
               >
-                Registrati
+                {status === 'loading' ? 'Registrazione in corso..' : 'Registrati'}
               </button>
 
               {/* Footer note */}
