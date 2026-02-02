@@ -1,12 +1,14 @@
 import React from "react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { readProfileEmail } from "../../services/profileService";
+import ErrorBoxNotification from "../../components/shared/ErrorBoxNotification";
 
 export default function FormRegistazioneLocale({
   comeBack,
   handleVenueSignUp,
   duty,
+  emailEx,
+  setEmailEx
 }) {
   const { status, error } = useSelector((state) => state.auth);
   const [formVenue, setFormVenue] = useState({
@@ -17,6 +19,7 @@ export default function FormRegistazioneLocale({
     dutySelect: "",
     cityVenue: "",
   });
+  
   function handleChange(e) {
     const { name, value } = e.target;
     setFormVenue((prev) => ({
@@ -27,15 +30,6 @@ export default function FormRegistazioneLocale({
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const { data: data, error: error } = await readProfileEmail(
-      formVenue.email_venue,
-    );
-    if (error && error.code !== "PGRST116") {
-      return console.log("error " + error.message);
-    }
-    if (data) {
-      return alert("email già registrata");
-    }
     handleVenueSignUp(formVenue);
   }
 
@@ -51,11 +45,14 @@ export default function FormRegistazioneLocale({
       <div className="page-bg">
         <div className="w-full max-w-md">
           {/* Header */}
-          <button className="btn-ghost" onClick={comeBack}>
+           <div className="fixed ">
+
+          <button className="btn-ghost backdrop-blur-md " onClick={comeBack}>
             {" "}
             Indietro{" "}
           </button>
-          <div className="mb-6 text-center">
+          </div>
+          <div className="mb-6 mt-9  text-center">
             <h1 className="text-7xl font-extrabold tracking-tight">Livebook</h1>
             <p className="help-text mt-1">
               Crea il tuo account da Locale per iniziare.
@@ -94,6 +91,7 @@ export default function FormRegistazioneLocale({
                   onChange={(e) => handleChange(e)}
                   value={formVenue.email_venue}
                   name="email_venue"
+                  onBlur={(e) =>handleOnBlur(e)}
                 />
                 {/* error (se vuoi) */}
                 {/* <p className="error-text">Email non valida</p> */}
@@ -183,6 +181,8 @@ export default function FormRegistazioneLocale({
               </p>
             </form>
           </div>
+           {/* Error Notification */}
+                    {emailEx?.error && <ErrorBoxNotification setEmailEx={setEmailEx} emailEx={emailEx} />}
         </div>
       </div>
     </>

@@ -35,13 +35,25 @@ export const signUpThunk = createAsyncThunk(
   "auth/Registrazione",
   async ({ email, password, meta }, { rejectWithValue }) => {
     const { data, error } = await signUp(email, password, meta);
-    if (error)
+    if (error) {
+    
       return rejectWithValue({
         message: error.message,
         code: error.code,
         status: error.status,
       });
-      return true
+    }
+    const identities = data?.user?.identities;
+    console.log(data)
+    console.log(identities)
+    if(Array.isArray(identities) && identities.length === 0){
+      return rejectWithValue({
+        message: "Questa email risulta già registrata. Prova ad accedere oppure recupera la password.",
+        code: "EMAIL_ALREADY_REGISTERED",
+        status: 409,
+      });
+    }
+    return data;
   }
 );
 

@@ -12,6 +12,3 @@ export async function readProfile(userId) {
 export async function updateRole(userId, role) {
   return supabase.from("profiles").update({ role }).eq("id", userId).select().single();
 }
-export async function readProfileEmail(email) {
-  return supabase.from("profiles").select("email").eq("email", email).maybeSingle();
-}

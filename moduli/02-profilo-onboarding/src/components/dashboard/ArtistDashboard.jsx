@@ -1,74 +1,10 @@
-// import { useDispatch } from "react-redux";
-// import { thunkLogout } from "../../features/auth/authSlice";
 
-// export default function ArtistDashboard() {
-//   const dispatch= useDispatch()
-
-//   return (
-//     <>
-//       <div>Sei in ArtistDashboard</div>
-//       <button
-//         className="btn-primary w-full py-3 rounded-xl font-semibold"
-//         type="button"
-//         onClick={() => dispatch(thunkLogout())}
-//       >
-//         Logout
-//       </button>
-//     </>
-//   );
-// }
-// import { useEffect } from "react";
-// import { useDispatch, useSelector } from "react-redux";
-// import { thunkLogout } from "../../features/auth/authSlice";
-// import {fetchMyArtistThunk} from "../../features/artist/artistSlice"
-
-// export default function ArtistDashboard() {
-//   const dispatch = useDispatch();
-//   const { user, role } = useSelector((state) => state.auth);
-
-//   const{ artist, status} = useSelector((state) => state.artist)
-//   useEffect(() => {
-//     if (user && role) {
-
-//      dispatch(fetchMyArtistThunk({id:user.id}))
-//     }
-//   }, [user, role, dispatch]);
-// console.log(artist)
-//   if (status === "loading" || !artist) return <div>Caricamento profilo...</div>;
-
-//   return (
-//     <>
-//       <div className="page-bg">
-//         <div className="mb-6 text-center ">
-//           <div className="w-full max-w-md">
-//             <h1 className="text-7xl font-extrabold tracking-tight">Livebook </h1>
-//             <h2 className="text-4xl font-extrabold tracking-tight text-gray-400">Dashboard Artista</h2>
-//             <p className="help-text mt-1">
-//               Benvenuto {artist.artist_name}
-//             </p>
-//             <p className="help-text mt-1">
-//               {artist.duties}
-//             </p>
-//           </div>
-//         </div>
-//            <button 
-//                 className="btn-primary w-30 py-3 rounded-xl font-semibold"
-//                 type="button"
-//                 onClick={() => dispatch(thunkLogout())}
-//               >
-//                 Logout
-//               </button>
-//       </div>
-
-   
-//     </>
-//   );
-// }
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { thunkLogout } from "../../features/auth/authSlice";
 import { fetchMyArtistThunk, updateMyArtistThunk } from "../../features/artist/artistSlice";
 import ArtistProfileForm from "../../features/artist/ArtistProfileForm";
+import SearchPage from "../search/SearchPage";
 
 export default function ArtistDashboard() {
   const dispatch = useDispatch();
@@ -126,6 +62,7 @@ export default function ArtistDashboard() {
               onCancel={() => setEditing(false)}
             />
           )}
+        <SearchPage artist={artist}/>
         </div>
       </div>
     </div>

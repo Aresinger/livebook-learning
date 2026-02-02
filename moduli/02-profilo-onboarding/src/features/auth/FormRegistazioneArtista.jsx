@@ -1,14 +1,18 @@
 import React from "react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { readProfileEmail } from "../../services/profileService";
+import ErrorBoxNotification from "../../components/shared/ErrorBoxNotification";
+
+
 
 export default function FormRegistazioneArtista({
   duty,
   comeBack,
   handleArtistSignUp,
+  emailEx,
+  setEmailEx
 }) {
-  const [emailEx, setEmailEx] = useState(false);
+  
   const { status, error } = useSelector((state) => state.auth);
   console.log(status);
   const [formArtist, setFormArtist] = useState({
@@ -29,17 +33,10 @@ export default function FormRegistazioneArtista({
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const { data: data, error: error } = await readProfileEmail(
-      formArtist.email_artist,
-    );
-    if (error && error.code !== "PGRST116") {
-      return console.log("error " + error.message);
-    }
-    if (data) {
-      return alert("email già registrata");
-    }
     handleArtistSignUp(formArtist);
   }
+
+
    function toggleDuty(duty) {
     setFormArtist((p) => {
       const exists = p.dutySelect.includes(duty);
@@ -52,19 +49,23 @@ export default function FormRegistazioneArtista({
       <div className="page-bg">
         <div className="w-full max-w-md">
           {/* Header */}
-          <button className="btn-ghost" onClick={comeBack}>
+          <div className="fixed ">
+
+          <button className="btn-ghost backdrop-blur-md " onClick={comeBack}>
             {" "}
             Indietro{" "}
           </button>
-          <div className="mb-6 text-center">
+          </div>
+          <div className="mb-6 mt-9 text-center">
             <h1 className="text-7xl font-extrabold tracking-tight">Livebook</h1>
             <p className="help-text mt-1">
               Crea il tuo account da Artista per iniziare.
             </p>
           </div>
+     
 
           {/* Card */}
-          <div className="glass-card">
+          <div className={ emailEx?.error ? 'glass-card disabled' : 'glass-card'}>
             <form className="card-inner space-y-5" onSubmit={handleSubmit}>
               {/* nome  */}
               <div>
@@ -95,6 +96,7 @@ export default function FormRegistazioneArtista({
                   placeholder="you@example.com"
                   onChange={(e) => handleChange(e)}
                   value={formArtist.email_artist}
+                  onBlur={(e) => handleOnBlur(e)}
                 />
                 {/* error (se vuoi) */}
                 {/* <p className="error-text">Email non valida</p> */}
@@ -190,6 +192,8 @@ export default function FormRegistazioneArtista({
               </p>
             </form>
           </div>
+            {emailEx?.error && <ErrorBoxNotification setEmailEx={setEmailEx} emailEx={emailEx}/>}
+       
         </div>
       </div>
     </>
