@@ -1,64 +1,17 @@
-// import { useEffect } from "react";
-// import { useDispatch, useSelector } from "react-redux";
-// import { fetchMyVenueThunk } from "../../features/venue/venueSlice";
-// import { thunkLogout } from "../../features/auth/authSlice";
-
-
-// export default function ArtistDashboard() {
-//   const dispatch = useDispatch();
-//   const { user, role } = useSelector((state) => state.auth);
-//   const { venue , status } =useSelector((state) => state.venue)
-
-//   useEffect(() => {
-//     if (user && role) {
-//       dispatch(fetchMyVenueThunk({id:user.id}))
-//     }
-//   }, [user, role, dispatch]);
-
-//   if (status === "loading" || !venue) return <div>Caricamento profilo...</div>;
-// console.log(venue)
-//   return (
-//     <>
-//       <div className="page-bg">
-//         <div className="mb-6 text-center ">
-//           <div className="w-full max-w-md">
-//             <h1 className="text-7xl font-extrabold tracking-tight">Livebook </h1>
-//             <h2 className="text-4xl font-extrabold tracking-tight text-gray-400">Dashboard Locale</h2>
-//             <p className="help-text mt-1">
-//               Benvenuto {venue.venue_name}
-//             </p>
-//             <p className="help-text mt-1">
-//               Questi i tuoi interessi: {venue.duties}
-//             </p>
-//           </div>
-//         </div>
-//            <button 
-//                 className="btn-primary w-30 py-3 rounded-xl font-semibold"
-//                 type="button"
-//                 onClick={() => dispatch(thunkLogout())}
-//               >
-//                 Logout
-//               </button>
-//       </div>
-
-//       {/* qui dopo metteremo il form */}
-//     </>
-//   );
-// }
-
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { thunkLogout } from "../../features/auth/authSlice";
 import { fetchMyVenueThunk,updateMyVenueThunk } from "../../features/venue/venueSlice";
 import VenueProfileForm from "../../features/venue/VenueProfileForm"
+import SearchPageVenue from "../search/SearchPageVenue";
 
 export default function ArtistDashboard() {
   const dispatch = useDispatch();
   const { user, role } = useSelector((s) => s.auth);
   const { venue, status, error } = useSelector((s) => s.venue);
   const [editing, setEditing] = useState(false);
-
+console.log(venue)
   useEffect(() => {
     if (user?.id && role === "locale") {
       dispatch(fetchMyVenueThunk({ id: user.id }));
@@ -109,6 +62,7 @@ export default function ArtistDashboard() {
               onCancel={() => setEditing(false)}
             />
           )}
+          <SearchPageVenue/>
         </div>
       </div>
     </div>

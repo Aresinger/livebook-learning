@@ -46,18 +46,25 @@
   .error-text {
     @apply mt-1 text-xs text-red-300;
   }
-  /* .error-box- {
-     @apply  justify-self-center w-96 h-72 mt-1 text-xs fixed inset-10 z-10 rounded-2xl border border-white/15 bg-white/10 top-56  ;
-    background: radial-gradient(1200px 600px at 20% 10%, rgba(124,124,255,.25), transparent 55%),
-                radial-gradient(900px 500px at 80% 20%, rgba(255,94,223,.18), transparent 60%),
-                radial-gradient(900px 600px at 60% 90%, rgba(45,226,230,.12), transparent 55%),
-                linear-gradient(135deg, #0B0F14 0%, #0B0F14 35%, #070A10 100%);
-                
-  } */
+
 .disabled {
   pointer-events: none;
 }
 
 
+}
+
+select {
+  position: relative;
+  z-index: 10;
+  /* Forza dimensioni consistenti */
+  min-height: 48px;
+  padding: 12px 16px;
+}
+
+/* Assicurati che il parent non interferisca */
+form {
+  position: relative;
+  z-index: 1;
 }
 

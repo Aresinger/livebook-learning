@@ -12,12 +12,12 @@ error: null
 }
 
 
-const searchThunk = createAsyncThunk(
+export const searchThunk = createAsyncThunk(
     'search',
     async ({role,filters}, { rejectWithValue}) => {
         const { city, duty, q } = filters;
        const res = 
-       role === 'artista' ? await searchArtists({q,city,duty})
+       role === 'locale' ? await searchArtists({q,city,duty})
        : await searchVenue({q,city,duty});
 
        const {data, error} = res;
@@ -31,6 +31,8 @@ const searchThunk = createAsyncThunk(
        return data
     }
 )
+
+
 
  const searchSlice = createSlice({
     name:'search',

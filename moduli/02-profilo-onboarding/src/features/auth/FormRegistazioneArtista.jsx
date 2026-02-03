@@ -2,17 +2,18 @@ import React from "react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import ErrorBoxNotification from "../../components/shared/ErrorBoxNotification";
-
-
+import NotificationBox from "../../components/shared/NotificationBox";
 
 export default function FormRegistazioneArtista({
   duty,
   comeBack,
   handleArtistSignUp,
   emailEx,
-  setEmailEx
+  setEmailEx,
+  confirmation,
+  setConfirmation,
+  setView,
 }) {
-  
   const { status, error } = useSelector((state) => state.auth);
   console.log(status);
   const [formArtist, setFormArtist] = useState({
@@ -22,6 +23,7 @@ export default function FormRegistazioneArtista({
     dutySelect: [],
     cityArtist: "",
     avatarArtist: null,
+    bio:""
   });
   function handleChange(e) {
     const { name, value } = e.target;
@@ -36,11 +38,15 @@ export default function FormRegistazioneArtista({
     handleArtistSignUp(formArtist);
   }
 
-
-   function toggleDuty(duty) {
+  function toggleDuty(duty) {
     setFormArtist((p) => {
       const exists = p.dutySelect.includes(duty);
-      return { ...p, dutySelect: exists ? p.dutySelect.filter((d) => d !== duty) : [...p.dutySelect, duty] };
+      return {
+        ...p,
+        dutySelect: exists
+          ? p.dutySelect.filter((d) => d !== duty)
+          : [...p.dutySelect, duty],
+      };
     });
   }
 
@@ -50,11 +56,10 @@ export default function FormRegistazioneArtista({
         <div className="w-full max-w-md">
           {/* Header */}
           <div className="fixed ">
-
-          <button className="btn-ghost backdrop-blur-md " onClick={comeBack}>
-            {" "}
-            Indietro{" "}
-          </button>
+            <button className="btn-ghost backdrop-blur-md " onClick={comeBack}>
+              {" "}
+              Indietro{" "}
+            </button>
           </div>
           <div className="mb-6 mt-9 text-center">
             <h1 className="text-7xl font-extrabold tracking-tight">Livebook</h1>
@@ -62,10 +67,11 @@ export default function FormRegistazioneArtista({
               Crea il tuo account da Artista per iniziare.
             </p>
           </div>
-     
 
           {/* Card */}
-          <div className={ emailEx?.error ? 'glass-card disabled' : 'glass-card'}>
+          <div
+            className={emailEx?.error ? "glass-card disabled" : "glass-card"}
+          >
             <form className="card-inner space-y-5" onSubmit={handleSubmit}>
               {/* nome  */}
               <div>
@@ -96,7 +102,7 @@ export default function FormRegistazioneArtista({
                   placeholder="you@example.com"
                   onChange={(e) => handleChange(e)}
                   value={formArtist.email_artist}
-                  onBlur={(e) => handleOnBlur(e)}
+                  
                 />
                 {/* error (se vuoi) */}
                 {/* <p className="error-text">Email non valida</p> */}
@@ -171,10 +177,20 @@ export default function FormRegistazioneArtista({
               {status === "failed" && (
                 <p className="text-red-300 text-sm">{error?.message}</p>
               )}
-              {/* {emailEx ?? 
-                <p className="text-red-300 text-sm">Email già registrata</p>
-                } */}
-
+              {/* BIO */}
+              <div>
+                <label className="label" htmlFor="bio">
+                  Bio
+                </label>
+                <textarea
+                  id="bio"
+                  name="bio"
+                  className="input-glass min-h-[120px]"
+                  value={formArtist.bio}
+                  onChange={(e) =>handleChange(e)}
+                  placeholder="Scrivi una breve presentazione..."
+                />
+              </div>
               {/* Main CTA */}
               <button
                 type="submit"
@@ -192,8 +208,17 @@ export default function FormRegistazioneArtista({
               </p>
             </form>
           </div>
-            {emailEx?.error && <ErrorBoxNotification setEmailEx={setEmailEx} emailEx={emailEx}/>}
-       
+          {emailEx?.error && (
+            <ErrorBoxNotification setEmailEx={setEmailEx} emailEx={emailEx} />
+          )}
+          {/* Register Notiication */}
+          {confirmation?.active && (
+            <NotificationBox
+              confirmation={confirmation}
+              setConfirmation={setConfirmation}
+              setView={setView}
+            />
+          )}
         </div>
       </div>
     </>

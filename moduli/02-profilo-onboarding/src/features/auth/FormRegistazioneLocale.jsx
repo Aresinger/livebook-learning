@@ -2,13 +2,17 @@ import React from "react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import ErrorBoxNotification from "../../components/shared/ErrorBoxNotification";
+import NotificationBox from "../../components/shared/NotificationBox";
 
 export default function FormRegistazioneLocale({
   comeBack,
   handleVenueSignUp,
   duty,
   emailEx,
-  setEmailEx
+  setEmailEx,
+  confirmation,
+  setConfirmation,
+  setView,
 }) {
   const { status, error } = useSelector((state) => state.auth);
   const [formVenue, setFormVenue] = useState({
@@ -18,8 +22,9 @@ export default function FormRegistazioneLocale({
     avatarVenue: null,
     dutySelect: "",
     cityVenue: "",
+    bio:""
   });
-  
+
   function handleChange(e) {
     const { name, value } = e.target;
     setFormVenue((prev) => ({
@@ -33,10 +38,15 @@ export default function FormRegistazioneLocale({
     handleVenueSignUp(formVenue);
   }
 
-   function toggleDuty(duty) {
+  function toggleDuty(duty) {
     setFormVenue((p) => {
       const exists = p.dutySelect.includes(duty);
-      return { ...p, dutySelect: exists ? p.dutySelect.filter((d) => d !== duty) : [...p.dutySelect, duty] };
+      return {
+        ...p,
+        dutySelect: exists
+          ? p.dutySelect.filter((d) => d !== duty)
+          : [...p.dutySelect, duty],
+      };
     });
   }
 
@@ -45,12 +55,11 @@ export default function FormRegistazioneLocale({
       <div className="page-bg">
         <div className="w-full max-w-md">
           {/* Header */}
-           <div className="fixed ">
-
-          <button className="btn-ghost backdrop-blur-md " onClick={comeBack}>
-            {" "}
-            Indietro{" "}
-          </button>
+          <div className="fixed ">
+            <button className="btn-ghost backdrop-blur-md " onClick={comeBack}>
+              {" "}
+              Indietro{" "}
+            </button>
           </div>
           <div className="mb-6 mt-9  text-center">
             <h1 className="text-7xl font-extrabold tracking-tight">Livebook</h1>
@@ -91,7 +100,7 @@ export default function FormRegistazioneLocale({
                   onChange={(e) => handleChange(e)}
                   value={formVenue.email_venue}
                   name="email_venue"
-                  onBlur={(e) =>handleOnBlur(e)}
+                  onBlur={(e) => handleOnBlur(e)}
                 />
                 {/* error (se vuoi) */}
                 {/* <p className="error-text">Email non valida</p> */}
@@ -163,6 +172,20 @@ export default function FormRegistazioneLocale({
                   }
                 />
               </div>
+              {/* BIO */}
+              <div>
+                <label className="label" htmlFor="bio">
+                  Bio
+                </label>
+                <textarea
+                  id="bio"
+                  name="bio"
+                  className="input-glass min-h-[120px]"
+                  value={formVenue.bio}
+                  onChange={(e) =>handleChange(e)}
+                  placeholder="Scrivi una breve presentazione..."
+                />
+              </div>
 
               {/* Main CTA */}
               <button
@@ -181,8 +204,18 @@ export default function FormRegistazioneLocale({
               </p>
             </form>
           </div>
-           {/* Error Notification */}
-                    {emailEx?.error && <ErrorBoxNotification setEmailEx={setEmailEx} emailEx={emailEx} />}
+          {/* Error Notification */}
+          {emailEx?.error && (
+            <ErrorBoxNotification setEmailEx={setEmailEx} emailEx={emailEx} />
+          )}
+          {/* Register Notiication */}
+          {confirmation?.active && (
+            <NotificationBox
+              confirmation={confirmation}
+              setConfirmation={setConfirmation}
+              setView={setView}
+            />
+          )}
         </div>
       </div>
     </>

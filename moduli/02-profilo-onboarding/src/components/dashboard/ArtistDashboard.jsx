@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { thunkLogout } from "../../features/auth/authSlice";
 import { fetchMyArtistThunk, updateMyArtistThunk } from "../../features/artist/artistSlice";
 import ArtistProfileForm from "../../features/artist/ArtistProfileForm";
-import SearchPage from "../search/SearchPage";
+import SearchPageVenue from "../search/SearchPageArtist";
 
 export default function ArtistDashboard() {
   const dispatch = useDispatch();
@@ -62,7 +62,7 @@ export default function ArtistDashboard() {
               onCancel={() => setEditing(false)}
             />
           )}
-        <SearchPage artist={artist}/>
+        <SearchPageVenue />
         </div>
       </div>
     </div>

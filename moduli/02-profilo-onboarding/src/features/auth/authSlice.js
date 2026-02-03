@@ -28,7 +28,7 @@ export const loginThunk = createAsyncThunk(
         status: error.status,
       });
 
-    return true;
+    return data;
   }
 );
 export const signUpThunk = createAsyncThunk(
@@ -44,8 +44,7 @@ export const signUpThunk = createAsyncThunk(
       });
     }
     const identities = data?.user?.identities;
-    console.log(data)
-    console.log(identities)
+   
     if(Array.isArray(identities) && identities.length === 0){
       return rejectWithValue({
         message: "Questa email risulta già registrata. Prova ad accedere oppure recupera la password.",
@@ -129,8 +128,9 @@ export const bootstrapAuth = createAsyncThunk(
           artist_name: meta.stage_name ?? "",
           id: user.id,
           city: meta.city ?? "",
-          duties: meta.duty ? [meta.duty] : ["artista generico"],
-          email_artist: meta.email_artist
+          duties: meta.duty ? meta.duty : ["artista generico"],
+          email_artist: meta.email_artist,
+          bio: meta.bio
         };
         const { data: artist, error: errCreateArtist } = await createArtist(
           payload
@@ -159,8 +159,9 @@ export const bootstrapAuth = createAsyncThunk(
           id: user.id,
           venue_name: meta.venue_name ?? "",
           city: meta.city ?? "",
-          duties: meta.duty ? [meta.duty] : ["artista generico"],
-          email_venue: meta.email_venue
+          duties: meta.duty ? meta.duty : ["artista generico"],
+          email_venue: meta.email_venue,
+          bio: meta.bio
         };
         const { data: newVenue, error: errCreateVenue } = await createVenue(
           payload

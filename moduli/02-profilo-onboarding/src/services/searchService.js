@@ -1,7 +1,7 @@
 
 import { supabase } from "../config/supabase";
 
-export async function searchArtists({ q, city, duty, limit = 20 }) {
+export async function searchArtists({ q, bio, city, duty, limit = 20 }) {
   let query = supabase
     .from("artists")
     .select("id, artist_name, city, duties")
@@ -10,18 +10,20 @@ export async function searchArtists({ q, city, duty, limit = 20 }) {
   if (city) query = query.ilike("city", `%${city}%`);
   if (duty) query = query.contains("duties", [duty]); 
   if (q) query = query.ilike("artist_name", `%${q}%`);
-
-  return query;
+  if(bio) query = query.ilike("bio",`%${bio}%`)
+  const {data, error} = await query;
+return {data, error};
 }
 
-export async function searchVenue({ q, city, duty, limit = 20 }) {
+export async function searchVenue({ q, bio, city, duty, limit = 20 }) {
   let query = supabase
     .from("venues")
-    .select("id,venue_name,city,duties")
+    .select("id,venue_name,city,duties,bio")
     .limit(limit);
-  if (city) query = query.ilike("city", `${city}`);
+  if (city) query = query.ilike("city", `%${city}%`);
   if (duty) query = query.contains("duties", [duty]);
-  if (q) query = query.ilike("venue_name", `${q}`);
-
-  return query;
+  if (q) query = query.ilike("venue_name", `%${q}%`);
+  if(bio) query = query.ilike("bio",`%${bio}%`)
+  const {data, error} = await query;
+  return {data, error};
 }

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { signUp } from "./../services/authService";
 import { useDispatch } from "react-redux";
 import {
   bootstrapAuth,
@@ -17,6 +16,10 @@ export default function AuthPage() {
     error: false,
     message: ''
   });
+  const [confirmation,setConfirmation] = useState({
+    active: false,
+    message: ''
+  })
 
   const dispatch = useDispatch();
 
@@ -30,16 +33,7 @@ export default function AuthPage() {
   }
 
   async function handleArtistSignUp(formArtist) {
-    // const { data, error } = await signUp(
-    //   formArtist.emailArtist,
-    //   formArtist.passwordArtist,
-    //   {
-    //     role: "artista",
-    //     stage_name: formArtist.stage_name,
-    //     city: formArtist.cityArtist,
-    //     duty: formArtist.dutySelect,
-    //   }
-    // );
+  
 
     /// Con questa funzione posso gestire gli stati ; modifica al bottone status === 'loading'
     const action = await dispatch(
@@ -52,23 +46,24 @@ export default function AuthPage() {
           city: formArtist.cityArtist,
           duty: formArtist.dutySelect,
           email_artist: formArtist.email_artist,
+          bio: formArtist.bio
         },
       }),
     );
 
     if (signUpThunk.rejected.match(action)) {
-      // alert(action.payload?.message ?? action.error.message);
+
       setEmailEx({
-        error: true,
+        active: true,
         message: action.payload?.message ?? action.error.message
       });
       return;
     }
+    if(signUpThunk.fulfilled.match(action)){
 
-    alert(
-      "Account creato! Controlla la mail e conferma. Poi torna qui e fai login.",
-    );
-    setView("login");
+      setConfirmation({active:true,message: 'Registrazione come Artista avvenuta con successo! Conferma la registrazione cliccando il link inviato via email.'})
+    }
+    
   }
 
   async function handleVenueSignUp(formVenue) {
@@ -82,20 +77,22 @@ export default function AuthPage() {
           city: formVenue.cityVenue,
           duty: formVenue.dutySelect,
           email_venue: formVenue.email_venue,
+          bio: formVenue.bio
         },
       }),
     );
 
     if (signUpThunk.rejected.match(action)) {
-      setEmailEx({error: true, message: action.payload?.message ?? action.error.message});
+      setEmailEx({error: true, message: action.payload?.message ?? action.error?.message});
 
       return;
     }
 
-    alert(
-      "Account creato! Controlla la mail e conferma. Poi torna qui e fai login.",
-    );
-    setView("login");
+    if(signUpThunk.fulfilled.match(action)){
+
+      setConfirmation({active:true,message: 'Registrazione come Locale avvenuta con successo! Conferma la registrazione cliccando il link inviato via email.'})
+    }
+    
   }
 
   function signup_artist() {
@@ -130,6 +127,9 @@ export default function AuthPage() {
           handleArtistSignUp={handleArtistSignUp}
           emailEx={emailEx}
           setEmailEx={setEmailEx}
+          confirmation= {confirmation}
+          setConfirmation= {setConfirmation}
+          setView={setView}
         />
       )}
       {view === "locale" && (
@@ -139,6 +139,9 @@ export default function AuthPage() {
           duty={duty}
           emailEx={emailEx}
           setEmailEx={setEmailEx}
+          confirmation= {confirmation}
+          setConfirmation= {setConfirmation}
+          setView={setView}
         />
       )}
     </>
