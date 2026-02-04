@@ -1,17 +1,17 @@
 import React from "react";
 
-export default function ArtistCard({ 
+export default function VenueCard({ 
   image, 
   name, 
   city,
-  duty = [], 
+  duties = [], 
   bio,
   onClick 
 }) {
-    console.log(bio)
+  console.log(duties)
   return (
     <div 
-      className="glass-card cursor-pointer hover:scale-[1.02] transition-transform duration-300"
+      className="glass-card cursor-pointer hover:scale-[1.02] transition-transform duration-300 "
       onClick={onClick}
     >
       {/* Immagine */}
@@ -37,9 +37,9 @@ export default function ArtistCard({
       {/* Contenuto */}
       <div className="card-inner">
         {/* Interessi/Tags */}
-        {duty && duty.length > 0 && (
+        {duties && duties.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {duty.map((duty, index) => (
+            {duties.map((duty, index) => (
               <span 
                 key={index}
                 className="px-3 py-1 rounded-full text-xs font-medium bg-white/10 border border-white/20 text-white/90"

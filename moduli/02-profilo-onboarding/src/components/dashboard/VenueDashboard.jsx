@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { thunkLogout } from "../../features/auth/authSlice";
 import { fetchMyVenueThunk,updateMyVenueThunk } from "../../features/venue/venueSlice";
 import VenueProfileForm from "../../features/venue/VenueProfileForm"
-import SearchPageVenue from "../search/SearchPageVenue";
 
 export default function ArtistDashboard() {
   const dispatch = useDispatch();
@@ -62,7 +61,6 @@ console.log(venue)
               onCancel={() => setEditing(false)}
             />
           )}
-          <SearchPageVenue/>
         </div>
       </div>
     </div>

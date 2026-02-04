@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { searchThunk } from "./searchSlice";
-
-import ArtistCard from "../Card/ArtistCard";
+import VenueCard from "../Card/VenueCard";
 
 export default function SearchPageArtist() {
   const dispatch = useDispatch();
@@ -13,25 +12,25 @@ export default function SearchPageArtist() {
     role: role,
     city: "",
     duty: "",
-    artist_name: "",
+    venue_name: "",
   });
 
   const optSearch = [
     { label: 'Città', value: 'city' },
     { label: 'Interessi', value: 'duty' },
-    { label: 'Nome Artista', value: 'artist_name' }
+    { label: 'Nome Locale', value: 'venue_name' }
   ];
 
   function handleOptionClick(option) {
     console.log("Opzione selezionata:", option);
-    setSelectOption(option.value); // Salva 'city', 'duty', o 'artist_name'
+    setSelectOption(option.value); // Salva 'city', 'duty', o 'venue_name'
     
     // Reset degli altri campi
     setSearchForm((prev) => ({
       ...prev,
       city: "",
-      duty: "",
-      artist_name: "",
+      duty: '',
+      venue_name: "",
     }));
   }
 
@@ -54,7 +53,7 @@ export default function SearchPageArtist() {
       searchThunk({
         role: searchForm.role,
         filters: {
-          q: searchForm.artist_name,
+          q: searchForm.venue_name,
           duty: searchForm.duty,
           city: searchForm.city,
         },
@@ -66,7 +65,7 @@ export default function SearchPageArtist() {
     if (searchThunk.fulfilled.match(action)) {
       setData(action.payload || []);
       console.log("Risultati:", action.payload);
-      console.log("duties:", action.payload && action.payload.duties ? action.payload.duties.map((d) => d) : []);
+
     } else {
       setData([]);
       console.error("Errore:", action.error || action.payload);
@@ -78,19 +77,21 @@ export default function SearchPageArtist() {
       ...prev,
       city: "",
       duty: "",
-      artist_name: "",
+      venue_name: "",
     }));
   }
 
   console.log("Data:", data);
   console.log("Search form:", searchForm);
+  console.log("DataProva:", data.map((item) => item.duties));
+
 
   return (
     
       <div className="container mx-auto max-w-4xl p-6">
         <form onSubmit={handleSubmit} className="glass-card card-inner">
           <h2 className="text-3xl font-bold mb-6">
-            Cerca gli Artisti per i tuoi eventi
+            Cerca i locali per i tuoi eventi
           </h2>
 
           <div className="space-y-4">
@@ -124,7 +125,7 @@ export default function SearchPageArtist() {
                   className="input-glass"
                   placeholder={
                     selectOption === 'city' ? 'es. Caserta' :
-                    selectOption === 'duty' ? 'es. Artista generico' :
+                    selectOption === 'duty' ? 'es. gruppo musicale' :
                     'es. Trattoria da Manna'
                   }
                   onChange={handleChangeInput}
@@ -142,16 +143,16 @@ export default function SearchPageArtist() {
         </form>
 
         {/* Risultati */}
-        <div className="mt-8">
+        <div className=" mt-5 ">
           {data.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {data.map((artist) => (
-                <ArtistCard
-                  key={artist.id}
-                  name={artist.artist_name}
-                  city={artist.city}
-                  duties={artist.duties}
-                  bio={artist.bio}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
+              {data.map((venue) => (
+                <VenueCard
+                  key={venue.id}
+                  name={venue.venue_name}
+                  city={venue.city}
+                  duties={venue.duties}
+                  bio={venue.bio}
                 />
               ))}
             </div>
